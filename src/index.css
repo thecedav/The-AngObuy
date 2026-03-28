@@ -1,0 +1,70 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');
+
+@theme {
+  --color-orange-500: #F24E1E;
+  --color-orange-600: #D83E15;
+  --color-orange-400: #F46C44;
+  --color-orange-200: #F9A48B;
+  --color-slate-800: #1E293B;
+  --color-slate-900: #0F172A;
+  
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-serif: "Playfair Display", serif;
+  --font-handwritten: "Dancing Script", cursive;
+}
+
+@layer base {
+  body {
+    @apply bg-black text-white antialiased;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-slate-900/40 backdrop-blur-xl border border-white/10;
+  }
+  
+  .hover-glow {
+    @apply hover:shadow-[0_0_20px_rgba(242,78,30,0.3)] transition-all duration-300;
+  }
+
+  .ps6-processing {
+    background: linear-gradient(90deg, transparent, #F24E1E, transparent);
+    background-size: 200% 100%;
+    animation: ps6-flow 2s infinite linear;
+  }
+
+  @keyframes ps6-flow {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  .ps6-card {
+    @apply relative overflow-hidden transition-all duration-500;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+
+  .ps6-card:hover {
+    @apply -translate-y-1;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(242, 78, 30, 0.3);
+  }
+
+  .ps6-card::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-tr from-orange-500/0 via-orange-500/5 to-orange-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-800 rounded-full hover:bg-slate-700 transition-colors;
+}

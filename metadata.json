@@ -1,0 +1,9 @@
+{
+  "name": "The AngObuy",
+  "description": "An African Social Marketplace platform connecting stores, services, and people with AI-powered features.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
