@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabaseClient';
-import { Post, Store } from '@/types';
+import { Post, Store, Comment } from '@/types/index';
 import { 
   Heart, 
   Share2, 
@@ -35,12 +35,11 @@ import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { cn } from '@/lib/utils';
-import { useAuth } from '@/hooks/useAuth';
-import { useCart } from '@/hooks/useCart';
-import { useFollow } from '@/hooks/useFollow';
-import { Comment } from '@/types';
-import { recordStoreView } from '@/services/supabaseService';
+import { cn } from '@/utils/helpers/utils';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useCart } from '@/features/cart/hooks/useCart';
+import { useFollow } from '@/features/stores/hooks/useFollow';
+import { recordStoreView } from '@/services/supabase/supabaseService';
 
 export const ProductDetailPage = () => {
   const { productId } = useParams<{ productId: string }>();

@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Settings, Grid, Bookmark, User, MoreHorizontal, ShoppingBag, Wrench, Database, CheckCircle, MessageCircle, ArrowLeft, Camera, MapPin, Store, Shield, LogOut, Save, Plus, Trash2, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
-import { useAuth } from '@/hooks/useAuth';
-import { UserProfile, Post, Store as StoreType } from '@/types';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { UserProfile, Post, Store as StoreType } from '@/types/index';
 import { motion, AnimatePresence } from 'motion/react';
-import { cn } from '@/lib/utils';
-import { useFollow } from '@/hooks/useFollow';
-import { useLocations } from '@/hooks/useLocations';
-import { deleteStore } from '@/services/supabaseService';
+import { cn } from '@/utils/helpers/utils';
+import { useFollow } from '@/features/stores/hooks/useFollow';
+import { useLocations } from '@/features/marketplace/hooks/useLocations';
+import { deleteStore } from '@/services/supabase/supabaseService';
 
 export const ProfilePage = () => {
   const { userId } = useParams<{ userId: string }>();

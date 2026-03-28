@@ -1,15 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabaseClient';
-import { Store, Post, Advertisement } from '@/types';
+import { Store, Post, Advertisement } from '@/types/index';
 import { Grid, ShoppingBag, Wrench, User, ArrowLeft, MessageCircle, CheckCircle, Star, MapPin, MoreHorizontal, Camera, ShieldCheck, ShieldAlert, ChevronLeft, ChevronRight, Plus, Heart, Share2, LayoutDashboard } from 'lucide-react';
-import { recordStoreView } from '@/services/supabaseService';
+import { recordStoreView } from '@/services/supabase/supabaseService';
 import { motion, AnimatePresence } from 'motion/react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/helpers/utils';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { useAuth } from '@/hooks/useAuth';
-import { useFollow } from '@/hooks/useFollow';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useFollow } from '@/features/stores/hooks/useFollow';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 

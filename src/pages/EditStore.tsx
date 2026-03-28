@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/lib/supabaseClient';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Upload, ChevronRight, CheckCircle2, ArrowLeft, Store as StoreIcon } from 'lucide-react';
 import { motion } from 'motion/react';
-import { useLocations } from '@/hooks/useLocations';
-import { cn } from '@/lib/utils';
-import { Store } from '@/types';
+import { useLocations } from '@/features/marketplace/hooks/useLocations';
+import { cn } from '@/utils/helpers/utils';
+import { Store } from '@/types/index';
 
 export const EditStorePage = () => {
   const { storeId } = useParams<{ storeId: string }>();

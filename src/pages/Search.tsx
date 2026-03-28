@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Store, ShoppingBag, Wrench, MessageCircle, User, ArrowLeft, Filter, ChevronRight } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
-import { Product, Service, Store as StoreType, Comment, UserProfile } from '@/types';
+import { Product, Service, Store as StoreType, Comment, UserProfile } from '@/types/index';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import { useAuth } from '@/hooks/useAuth';
+import { cn } from '@/utils/helpers/utils';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 
 type SearchResult = {
   type: 'product' | 'service' | 'store' | 'comment';

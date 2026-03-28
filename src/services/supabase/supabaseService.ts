@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import { UserProfile, Store, Product, Service, Province, Municipality, Cart, CartItem, Chat, Message, ChatParticipant } from '@/types';
+import { UserProfile, Store, Product, Service, Province, Municipality, Cart, CartItem, Chat, Message, ChatParticipant } from '@/types/index';
 
 import { User } from '@supabase/supabase-js';
 

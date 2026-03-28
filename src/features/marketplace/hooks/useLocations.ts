@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { Province, Municipality } from '@/types';
+import { Province, Municipality } from '@/types/index';
 
 export const useLocations = () => {
   const [provinces, setProvinces] = useState<Province[]>([]);

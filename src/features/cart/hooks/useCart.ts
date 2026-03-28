@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Cart, CartItem } from '@/types';
-import { getOrCreateCart, addToCart as addToCartService } from '@/services/supabaseService';
+import { Cart, CartItem } from '@/types/index';
+import { getOrCreateCart, addToCart as addToCartService } from '@/services/supabase/supabaseService';
 import { supabase } from '@/lib/supabaseClient';
 
 export function useCart(userId: string | undefined) {

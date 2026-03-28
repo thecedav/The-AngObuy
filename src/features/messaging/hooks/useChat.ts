@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Chat, Message } from '@/types';
-import { fetchUserChats, fetchChatMessages, sendMessage as sendMessageService } from '@/services/supabaseService';
+import { Chat, Message } from '@/types/index';
+import { fetchUserChats, fetchChatMessages, sendMessage as sendMessageService } from '@/services/supabase/supabaseService';
 import { supabase } from '@/lib/supabaseClient';
 
 export function useChat(userId: string | undefined) {

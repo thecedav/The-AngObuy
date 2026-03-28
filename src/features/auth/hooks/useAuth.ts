@@ -1,5 +1,5 @@
-import { useAuth as useAuthContext } from '@/contexts/AuthContext';
-import { getCurrentUserProfile } from '@/services/supabaseService';
+import { useAuth as useAuthContext } from '@/features/auth/context/AuthContext';
+import { getCurrentUserProfile } from '@/services/supabase/supabaseService';
 
 export function useAuth() {
   const context = useAuthContext();

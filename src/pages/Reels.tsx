@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Heart, MessageCircle, Share2, MoreHorizontal, Music, User } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
-import { Post } from '@/types';
+import { Post } from '@/types/index';
 import { motion, AnimatePresence } from 'motion/react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { useFollow } from '@/hooks/useFollow';
-import { cn } from '@/lib/utils';
+import { useFollow } from '@/features/stores/hooks/useFollow';
+import { cn } from '@/utils/helpers/utils';
 
 export const ReelsPage = () => {
   const [reels, setReels] = useState<Post[]>([]);

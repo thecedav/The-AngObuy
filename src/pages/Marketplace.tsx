@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, ShoppingBag, Wrench, Grid, List, ChevronDown, Star, MapPin, Globe, Package, ArrowLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
-import { Product, Service, Province, Municipality } from '@/types';
+import { Product, Service, Province, Municipality, Advertisement } from '@/types/index';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import { useLocations } from '@/hooks/useLocations';
+import { cn } from '@/utils/helpers/utils';
+import { useLocations } from '@/features/marketplace/hooks/useLocations';
 
-import { AdModal } from '@/components/AdModal';
-import { Advertisement } from '@/types';
+import { AdModal } from '@/features/marketplace/components/AdModal';
 
 interface Category {
   id: string;

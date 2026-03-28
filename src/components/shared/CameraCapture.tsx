@@ -1,7 +1,7 @@
 import React, { useRef, useState, useCallback } from 'react';
 import { Camera, RefreshCw, Check, X } from 'lucide-react';
-import { Button } from './ui/Button';
-import OptimizedImage from './OptimizedImage';
+import { Button } from '@/components/ui/Button';
+import OptimizedImage from '@/components/shared/OptimizedImage';
 
 interface CameraCaptureProps {
   onCapture: (blob: Blob) => void;

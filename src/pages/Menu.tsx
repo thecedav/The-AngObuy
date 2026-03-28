@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { Card } from '@/components/ui/Card';
 import { User, LogOut, ChevronRight, Settings, HelpCircle, Shield, Info } from 'lucide-react';
 import { motion } from 'motion/react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/helpers/utils';
 
 export const MenuPage = () => {
   const { profile, signOut } = useAuth();

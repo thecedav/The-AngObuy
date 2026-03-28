@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { useAuth } from './useAuth';
-import { Chat, Message } from '@/types';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { Chat, Message } from '@/types/index';
 
 export const useMessages = (chatId?: string) => {
   const { user } = useAuth();

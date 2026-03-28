@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { LogIn, Mail, Lock, User, Phone, CreditCard, Camera, Check, MapPin } from 'lucide-react';
-import { CameraCapture } from '@/components/CameraCapture';
-import { fetchProvinces, fetchMunicipalities } from '@/services/supabaseService';
-import { Province, Municipality } from '@/types';
+import { CameraCapture } from '@/components/shared/CameraCapture';
+import { fetchProvinces, fetchMunicipalities } from '@/services/supabase/supabaseService';
+import { Province, Municipality } from '@/types/index';
 
 export const LoginPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '@/hooks/useCart';
-import { useAuth } from '@/hooks/useAuth';
+import { useCart } from '@/features/cart/hooks/useCart';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { supabase } from '@/lib/supabaseClient';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingCart, Trash2, Plus, Minus, ArrowLeft, ShoppingBag, ChevronDown, ChevronUp, X, MessageCircle, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/helpers/utils';
 
 export const CartPage = () => {
   const navigate = useNavigate();

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Heart, User, MessageCircle, ShoppingBag, Wrench, MoreHorizontal } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { motion } from 'motion/react';

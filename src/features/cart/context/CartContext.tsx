@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
-import { Cart, CartItem } from '@/types';
-import { getOrCreateCart, addToCart as addToCartService } from '@/services/supabaseService';
+import { Cart, CartItem } from '@/types/index';
+import { getOrCreateCart, addToCart as addToCartService } from '@/services/supabase/supabaseService';
 import { supabase } from '@/lib/supabaseClient';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 
 interface CartContextType {
   cart: Cart | null;

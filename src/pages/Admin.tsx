@@ -29,8 +29,8 @@ import {
   FileText
 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
-import { Store, UserProfile, Advertisement, Province, Municipality, Post } from '@/types';
-import { cn } from '@/lib/utils';
+import { Store, UserProfile, Advertisement, Province, Municipality, Post } from '@/types/index';
+import { cn } from '@/utils/helpers/utils';
 import { 
   BarChart, 
   Bar, 

@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabaseClient';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Store, ShoppingBag, Wrench, Upload, ChevronRight, CheckCircle2, PlusSquare, X, Globe, Package, Camera, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { generateProductDescription } from '@/lib/gemini';
-import { useLocations } from '@/hooks/useLocations';
-import { cn } from '@/lib/utils';
+import { generateProductDescription } from '@/services/ai/gemini';
+import { useLocations } from '@/features/marketplace/hooks/useLocations';
+import { cn } from '@/utils/helpers/utils';
 
 export const CreatePage = () => {
   const [step, setStep] = useState<'type' | 'form' | 'store'>('type');

@@ -29,13 +29,13 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '@/lib/supabaseClient';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { 
   fetchStoreStock, 
   fetchStoreViewsCount, 
   fetchPopularProducts 
-} from '@/services/supabaseService';
-import { cn } from '@/lib/utils';
+} from '@/services/supabase/supabaseService';
+import { cn } from '@/utils/helpers/utils';
 import { 
   BarChart, 
   Bar, 

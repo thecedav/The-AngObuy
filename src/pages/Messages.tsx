@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, MessageCircle, User, MoreHorizontal, Send, Camera, Phone, Video, ArrowLeft, ShoppingBag, ShieldCheck, X, StickyNote, Calendar, Trash2, CheckCircle, ChevronRight } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import { useChat, useChatMessages } from '@/hooks/useChat';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useChat, useChatMessages } from '@/features/messaging/hooks/useChat';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/helpers/utils';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { supabase } from '@/lib/supabaseClient';

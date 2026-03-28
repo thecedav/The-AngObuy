@@ -1,21 +1,28 @@
 import { createClient } from '@supabase/supabase-js';
-import { getEnvVar } from '@/utils/env';
 
-const supabaseUrl = getEnvVar('VITE_SUPABASE_URL');
-const supabaseAnonKey = getEnvVar('VITE_SUPABASE_ANON_KEY');
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Robust client initialization
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(
+    'Missing Supabase environment variables. Please check your .env file or Vercel environment variables.'
+  );
+}
+
+// Production-safe client initialization
 export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co', 
-  supabaseAnonKey || 'placeholder-key',
+  supabaseUrl,
+  supabaseAnonKey,
   {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true
+      detectSessionInUrl: true,
+      storageKey: 'angobuy-auth-token',
+      flowType: 'pkce'
     },
     global: {
-      headers: { 'x-application-name': 'cedav-market' }
+      headers: { 'x-application-name': 'angobuy-marketplace' }
     },
     db: {
       schema: 'public'
@@ -23,7 +30,7 @@ export const supabase = createClient(
   }
 );
 
-// Helper to check if Supabase is properly configured
+// Helper to check if Supabase is properly configured (useful for conditional rendering/logic)
 export const isSupabaseConfigured = () => {
-  return !!supabaseUrl && !!supabaseAnonKey && supabaseUrl !== 'https://placeholder.supabase.co';
+  return !!supabaseUrl && !!supabaseAnonKey;
 };

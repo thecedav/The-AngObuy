@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabaseClient';
-import { Post, Advertisement } from '@/types';
-import { cn } from '@/lib/utils';
+import { Post, Advertisement, Comment } from '@/types/index';
+import { cn } from '@/utils/helpers/utils';
 import { Card } from '@/components/ui/Card';
 import { Heart, MessageCircle, Share2, MoreHorizontal, ShoppingBag, Wrench, Bookmark, ExternalLink, Facebook, Instagram, Link, Send, Reply, Trash2, Plus, ShoppingCart, Minus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useAuth } from '@/hooks/useAuth';
-import { useCart } from '@/hooks/useCart';
-import { useFollow } from '@/hooks/useFollow';
-import { Comment } from '@/types';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useCart } from '@/features/cart/hooks/useCart';
+import { useFollow } from '@/features/stores/hooks/useFollow';
 
-import { AdModal } from '@/components/AdModal';
+import { AdModal } from '@/features/marketplace/components/AdModal';
 
 export const FeedPage = () => {
   const [posts, setPosts] = useState<Post[]>([]);

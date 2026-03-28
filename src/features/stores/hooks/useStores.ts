@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Store } from '@/types';
-import { fetchStores } from '@/services/supabaseService';
+import { Store } from '@/types/index';
+import { fetchStores } from '@/services/supabase/supabaseService';
 
 export function useStores(filters?: { province_id?: string; municipality_id?: string }) {
   const [stores, setStores] = useState<Store[]>([]);

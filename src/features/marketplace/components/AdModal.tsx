@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, ChevronLeft, ChevronRight, ExternalLink, Play, Pause } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Advertisement } from '@/types';
+import { Advertisement } from '@/types/index';
 import { useNavigate } from 'react-router-dom';
 
 interface AdModalProps {
