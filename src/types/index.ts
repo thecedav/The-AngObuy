@@ -1,14 +1,18 @@
 export interface Advertisement {
   id: string;
   public_id: string;
-  title?: string;
+  title: string;
   content?: string;
   image_url?: string;
-  link_url?: string;
+  media_urls: string[];
   target_store_id?: string;
+  target_product_id?: string;
   target_province_id?: string;
   target_municipality_id?: string;
-  placement: 'store_cover' | 'news_feed';
+  link_url?: string;
+  placement: 'cover' | 'feed';
+  duration: '24h' | '1dia' | '1mes';
+  expires_at?: string;
   active: boolean;
   created_at: string;
 }

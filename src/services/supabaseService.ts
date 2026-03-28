@@ -1,11 +1,13 @@
 import { supabase } from '@/lib/supabaseClient';
 import { UserProfile, Store, Product, Service, Province, Municipality, Cart, CartItem, Chat, Message, ChatParticipant } from '@/types';
 
+import { User } from '@supabase/supabase-js';
+
 // 2. AUTHENTICATION SYNC
-export const getCurrentUserProfile = async (): Promise<UserProfile | null> => {
+export const getCurrentUserProfile = async (existingUser?: User | null): Promise<UserProfile | null> => {
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) return null;
+    const user = existingUser || (await supabase.auth.getUser()).data.user;
+    if (!user) return null;
 
     const { data, error } = await supabase
       .from('users')

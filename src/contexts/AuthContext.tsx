@@ -32,7 +32,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     fetchInProgress.current = true;
     
     try {
-      const data = await getCurrentUserProfile();
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      const data = await getCurrentUserProfile(currentUser);
       setProfile(data);
       
       if (data) {
@@ -63,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (data?.user) {
           setUser(data.user);
           // Fetch profile if user exists
-          const profileData = await getCurrentUserProfile();
+          const profileData = await getCurrentUserProfile(data.user);
           if (mounted) {
             setProfile(profileData);
             if (profileData) {
@@ -97,7 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (newUser) {
         // Fetch profile on auth change
-        const profileData = await getCurrentUserProfile();
+        const profileData = await getCurrentUserProfile(newUser);
         if (mounted) {
           setProfile(profileData);
           if (profileData) {

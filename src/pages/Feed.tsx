@@ -13,10 +13,14 @@ import { useCart } from '@/hooks/useCart';
 import { useFollow } from '@/hooks/useFollow';
 import { Comment } from '@/types';
 
+import { AdModal } from '@/components/AdModal';
+
 export const FeedPage = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [ads, setAds] = useState<Advertisement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedAd, setSelectedAd] = useState<Advertisement | null>(null);
+  const [selectedAdIndex, setSelectedAdIndex] = useState(0);
 
   useEffect(() => {
     fetchData();
@@ -65,12 +69,13 @@ export const FeedPage = () => {
 
       setPosts(combined as any);
 
-      // Fetch news feed ads
+      // Fetch news feed ads from 'news' table
       const { data: adsData, error: adsError } = await supabase
-        .from('advertisements')
+        .from('news')
         .select('*')
         .eq('active', true)
-        .eq('placement', 'news_feed');
+        .eq('placement', 'feed')
+        .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`);
 
       if (adsError) throw adsError;
       setAds(adsData || []);
@@ -134,7 +139,13 @@ export const FeedPage = () => {
                 transition={{ delay: (index % 5) * 0.1 }}
               >
                 {isAd ? (
-                  <AdCard ad={item as Advertisement} />
+                  <AdCard 
+                    ad={item as Advertisement} 
+                    onClick={() => {
+                      setSelectedAd(item as Advertisement);
+                      setSelectedAdIndex(ads.findIndex(a => a.id === item.id));
+                    }} 
+                  />
                 ) : (
                   <PostCard post={item as Post} />
                 )}
@@ -143,27 +154,67 @@ export const FeedPage = () => {
           })}
         </div>
       )}
+
+      <AnimatePresence>
+        {selectedAd && (
+          <AdModal 
+            ad={selectedAd} 
+            onClose={() => setSelectedAd(null)}
+            onNext={() => {
+              const nextIndex = (selectedAdIndex + 1) % ads.length;
+              setSelectedAdIndex(nextIndex);
+              setSelectedAd(ads[nextIndex]);
+            }}
+            onPrev={() => {
+              const prevIndex = (selectedAdIndex - 1 + ads.length) % ads.length;
+              setSelectedAdIndex(prevIndex);
+              setSelectedAd(ads[prevIndex]);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
-const AdCard = ({ ad }: { ad: Advertisement }) => {
+const AdCard = ({ ad, onClick }: { ad: Advertisement, onClick: () => void }) => {
+  const mediaUrl = ad.media_urls?.[0] || ad.image_url;
+  const isVideo = mediaUrl?.toLowerCase().match(/\.(mp4|webm|ogg|mov)$/) || mediaUrl?.includes('video');
+
   return (
-    <div className="bg-slate-900/40 border md:rounded-lg border-orange-500/30 mb-4 md:mb-6 overflow-hidden relative">
+    <div 
+      onClick={onClick}
+      className="bg-slate-900/40 border md:rounded-lg border-orange-500/30 mb-4 md:mb-6 overflow-hidden relative cursor-pointer hover:border-orange-500 transition-all group"
+    >
       <div className="absolute top-2 right-2 z-10">
         <span className="bg-orange-500 text-black text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
           Patrocinado
         </span>
       </div>
 
-      {ad.image_url ? (
-        <div className="aspect-video w-full overflow-hidden">
-          <img 
-            src={ad.image_url} 
-            alt={ad.title} 
-            className="w-full h-full object-cover"
-            referrerPolicy="no-referrer"
-          />
+      {mediaUrl ? (
+        <div className="aspect-video w-full overflow-hidden relative">
+          {isVideo ? (
+            <video 
+              src={mediaUrl} 
+              className="w-full h-full object-cover"
+              muted
+              loop
+              autoPlay
+            />
+          ) : (
+            <img 
+              src={mediaUrl} 
+              alt={ad.title} 
+              className="w-full h-full object-cover transition-transform group-hover:scale-105"
+              referrerPolicy="no-referrer"
+            />
+          )}
+          {ad.media_urls && ad.media_urls.length > 1 && (
+            <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-md text-white text-[8px] px-1.5 py-0.5 rounded font-bold">
+              +{ad.media_urls.length - 1}
+            </div>
+          )}
         </div>
       ) : (
         <div className="p-8 flex flex-col items-center justify-center text-center bg-gradient-to-br from-slate-900 to-orange-900/20 min-h-[200px]">
@@ -174,20 +225,13 @@ const AdCard = ({ ad }: { ad: Advertisement }) => {
 
       <div className="p-4 flex items-center justify-between bg-black/40 backdrop-blur-sm border-t border-white/5">
         <div className="flex-1">
-          {ad.image_url && <h3 className="font-bold text-white text-sm mb-1">{ad.title}</h3>}
+          {mediaUrl && <h3 className="font-bold text-white text-sm mb-1">{ad.title}</h3>}
           <p className="text-slate-400 text-xs line-clamp-1">{ad.content}</p>
         </div>
-        {ad.link_url && (
-          <a 
-            href={ad.link_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ml-4 flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-black px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-95 whitespace-nowrap"
-          >
-            Saiba Mais
-            <ExternalLink size={14} />
-          </a>
-        )}
+        <div className="ml-4 flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-black px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-95 whitespace-nowrap">
+          Ver Mais
+          <ExternalLink size={14} />
+        </div>
       </div>
     </div>
   );

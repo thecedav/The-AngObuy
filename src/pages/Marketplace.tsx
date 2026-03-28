@@ -7,6 +7,9 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useLocations } from '@/hooks/useLocations';
 
+import { AdModal } from '@/components/AdModal';
+import { Advertisement } from '@/types';
+
 interface Category {
   id: string;
   name: string;
@@ -56,11 +59,40 @@ export const MarketplacePage = () => {
 
   const [allProducts, setAllProducts] = useState<(Product | Service)[]>([]);
   const [loadingAll, setLoadingAll] = useState(false);
+  const [coverAds, setCoverAds] = useState<Advertisement[]>([]);
+  const [selectedAd, setSelectedAd] = useState<Advertisement | null>(null);
+  const [selectedAdIndex, setSelectedAdIndex] = useState(0);
+  const [currentCoverIndex, setCurrentCoverIndex] = useState(0);
 
   useEffect(() => {
     fetchCategories();
     fetchAllProducts();
+    fetchCoverAds();
   }, [activeTab]);
+
+  const fetchCoverAds = async () => {
+    try {
+      const { data } = await supabase
+        .from('news')
+        .select('*')
+        .eq('active', true)
+        .eq('placement', 'cover')
+        .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`);
+      
+      setCoverAds(data || []);
+    } catch (error) {
+      console.error('Error fetching cover ads:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (coverAds.length > 1) {
+      const timer = setInterval(() => {
+        setCurrentCoverIndex(prev => (prev + 1) % coverAds.length);
+      }, 5000);
+      return () => clearInterval(timer);
+    }
+  }, [coverAds]);
 
   const fetchAllProducts = async () => {
     setLoadingAll(true);
@@ -186,6 +218,65 @@ export const MarketplacePage = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
+        {/* Cover Ads Section */}
+        {coverAds.length > 0 && level === 'categories' && (
+          <div className="w-full mb-8">
+            <div className="relative aspect-[21/9] w-full rounded-3xl overflow-hidden group cursor-pointer" onClick={() => {
+              setSelectedAd(coverAds[currentCoverIndex]);
+              setSelectedAdIndex(currentCoverIndex);
+            }}>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={coverAds[currentCoverIndex].id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0"
+                >
+                  {coverAds[currentCoverIndex].media_urls?.[0]?.toLowerCase().match(/\.(mp4|webm|ogg|mov)$/) ? (
+                    <video 
+                      src={coverAds[currentCoverIndex].media_urls[0]} 
+                      autoPlay 
+                      muted 
+                      loop 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <img 
+                      src={coverAds[currentCoverIndex].media_urls?.[0] || coverAds[currentCoverIndex].image_url} 
+                      alt={coverAds[currentCoverIndex].title}
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-12">
+                    <span className="bg-orange-500 text-black text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-widest w-fit mb-4">
+                      Destaque
+                    </span>
+                    <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tight mb-2 line-clamp-2">{coverAds[currentCoverIndex].title}</h2>
+                    <p className="text-slate-300 text-sm md:text-lg max-w-2xl line-clamp-2">{coverAds[currentCoverIndex].content}</p>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
+              {coverAds.length > 1 && (
+                <div className="absolute bottom-6 right-6 flex gap-2 z-20">
+                  {coverAds.map((_, i) => (
+                    <button 
+                      key={i}
+                      onClick={(e) => { e.stopPropagation(); setCurrentCoverIndex(i); }}
+                      className={cn(
+                        "h-1.5 rounded-full transition-all",
+                        i === currentCoverIndex ? "w-8 bg-orange-500" : "w-2 bg-white/30 hover:bg-white/50"
+                      )}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Filters Sidebar */}
         <AnimatePresence>
           {showFilters && (
@@ -595,6 +686,24 @@ export const MarketplacePage = () => {
           )}
         </div>
       </div>
+      <AnimatePresence>
+        {selectedAd && (
+          <AdModal 
+            ad={selectedAd} 
+            onClose={() => setSelectedAd(null)}
+            onNext={() => {
+              const nextIndex = (selectedAdIndex + 1) % coverAds.length;
+              setSelectedAdIndex(nextIndex);
+              setSelectedAd(coverAds[nextIndex]);
+            }}
+            onPrev={() => {
+              const prevIndex = (selectedAdIndex - 1 + coverAds.length) % coverAds.length;
+              setSelectedAdIndex(prevIndex);
+              setSelectedAd(coverAds[prevIndex]);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -91,10 +91,12 @@ export default function AdminPage() {
 
   // Ad Form State
   const [newAd, setNewAd] = useState<Partial<Advertisement>>({
-    placement: 'store_cover',
-    active: true
+    placement: 'cover',
+    duration: '24h',
+    active: true,
+    title: ''
   });
-  const [adImage, setAdImage] = useState<File | null>(null);
+  const [adMedia, setAdMedia] = useState<File[]>([]);
 
   useEffect(() => {
     if (isUnlocked) {
@@ -141,7 +143,7 @@ export default function AdminPage() {
           municipality:municipality_id(id, name)
         `).order('created_at', { ascending: false }),
         supabase.from('posts').select('id', { count: 'exact' }),
-        supabase.from('advertisements').select('*').order('created_at', { ascending: false }),
+        supabase.from('news').select('*').order('created_at', { ascending: false }),
         supabase.from('provinces').select('*'),
         supabase.from('municipalities').select('*')
       ]);
@@ -240,32 +242,45 @@ export default function AdminPage() {
 
   const handleCreateAd = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newAd.title) return;
+    
     try {
-      let imageUrl = newAd.image_url;
+      const mediaUrls: string[] = [];
 
-      if (adImage) {
-        const fileExt = adImage.name.split('.').pop();
+      for (const file of adMedia) {
+        const fileExt = file.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
         const { error: uploadError } = await supabase.storage
-          .from('ads')
-          .upload(fileName, adImage);
+          .from('news-media')
+          .upload(fileName, file);
 
         if (uploadError) throw uploadError;
-        const { data: { publicUrl } } = supabase.storage.from('ads').getPublicUrl(fileName);
-        imageUrl = publicUrl;
+        const { data: { publicUrl } } = supabase.storage.from('news-media').getPublicUrl(fileName);
+        mediaUrls.push(publicUrl);
+      }
+
+      // Calculate expiration
+      let expiresAt = new Date();
+      if (newAd.duration === '24h') {
+        expiresAt.setHours(expiresAt.getHours() + 24);
+      } else if (newAd.duration === '1dia') {
+        expiresAt.setDate(expiresAt.getDate() + 1);
+      } else if (newAd.duration === '1mes') {
+        expiresAt.setMonth(expiresAt.getMonth() + 1);
       }
 
       const { error } = await supabase
-        .from('advertisements')
+        .from('news')
         .insert([{
           ...newAd,
-          image_url: imageUrl,
+          media_urls: mediaUrls,
+          expires_at: expiresAt.toISOString(),
           public_id: Math.random().toString(36).substring(2, 10).toUpperCase()
         }]);
 
       if (error) throw error;
-      setNewAd({ placement: 'store_cover', active: true });
-      setAdImage(null);
+      setNewAd({ placement: 'cover', duration: '24h', active: true, title: '' });
+      setAdMedia([]);
       fetchData();
     } catch (error) {
       console.error('Erro ao criar publicidade:', error);
@@ -274,7 +289,7 @@ export default function AdminPage() {
 
   const handleDeleteAd = async (id: string) => {
     try {
-      const { error } = await supabase.from('advertisements').delete().eq('id', id);
+      const { error } = await supabase.from('news').delete().eq('id', id);
       if (error) throw error;
       fetchData();
     } catch (error) {
@@ -751,71 +766,124 @@ export default function AdminPage() {
             <div className="space-y-8">
               <div className="bg-slate-900 rounded-2xl p-6 border border-white/10">
                 <h3 className="text-xl font-bold mb-6">Nova Publicidade</h3>
-                <form onSubmit={handleCreateAd} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <form onSubmit={handleCreateAd} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-slate-400 mb-1">Título</label>
                       <input 
                         type="text"
+                        required
                         value={newAd.title || ''}
                         onChange={(e) => setNewAd({...newAd, title: e.target.value})}
                         className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-orange-500"
-                        required
+                        placeholder="Título da publicidade"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-400 mb-1">Conteúdo</label>
+                      <label className="block text-sm font-medium text-slate-400 mb-1">Conteúdo/Descrição</label>
                       <textarea 
                         value={newAd.content || ''}
                         onChange={(e) => setNewAd({...newAd, content: e.target.value})}
-                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-orange-500 h-24"
-                        required
+                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-orange-500 min-h-[100px]"
+                        placeholder="Descrição da publicidade..."
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-1">Localização</label>
+                        <label className="block text-sm font-medium text-slate-400 mb-1">Posicionamento</label>
                         <select 
                           value={newAd.placement}
                           onChange={(e) => setNewAd({...newAd, placement: e.target.value as any})}
                           className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-orange-500"
                         >
-                          <option value="store_cover">Capa da Loja</option>
-                          <option value="news_feed">Feed de Notícias</option>
+                          <option value="cover">Capa (Cover)</option>
+                          <option value="feed">Feed do Marketplace</option>
                         </select>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-1">Link (Opcional)</label>
-                        <input 
-                          type="url"
-                          value={newAd.link_url || ''}
-                          onChange={(e) => setNewAd({...newAd, link_url: e.target.value})}
+                        <label className="block text-sm font-medium text-slate-400 mb-1">Duração</label>
+                        <select 
+                          value={newAd.duration}
+                          onChange={(e) => setNewAd({...newAd, duration: e.target.value as any})}
                           className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-orange-500"
-                          placeholder="https://..."
+                        >
+                          <option value="24h">24 Horas</option>
+                          <option value="1dia">1 Dia</option>
+                          <option value="1mes">1 Mês</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-400 mb-1">ID da Loja (Opcional)</label>
+                        <input 
+                          type="text"
+                          value={newAd.target_store_id || ''}
+                          onChange={(e) => setNewAd({...newAd, target_store_id: e.target.value})}
+                          className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-orange-500"
+                          placeholder="ID Público"
                         />
                       </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-400 mb-1">ID do Produto (Opcional)</label>
+                        <input 
+                          type="text"
+                          value={newAd.target_product_id || ''}
+                          onChange={(e) => setNewAd({...newAd, target_product_id: e.target.value})}
+                          className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-orange-500"
+                          placeholder="ID Público"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-400 mb-1">Link Externo (Opcional)</label>
+                      <input 
+                        type="url"
+                        value={newAd.link_url || ''}
+                        onChange={(e) => setNewAd({...newAd, link_url: e.target.value})}
+                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-orange-500"
+                        placeholder="https://exemplo.com"
+                      />
                     </div>
                   </div>
 
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-slate-400 mb-1">Imagem</label>
-                      <div className="relative aspect-video bg-black rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center overflow-hidden group">
-                        {adImage ? (
-                          <img src={URL.createObjectURL(adImage)} className="w-full h-full object-cover" alt="" />
-                        ) : (
-                          <>
-                            <ImageIcon size={32} className="text-slate-700 mb-2" />
-                            <p className="text-xs text-slate-500">Clique para carregar imagem</p>
-                          </>
+                      <label className="block text-sm font-medium text-slate-400 mb-1">Mídia (Imagens/Vídeos)</label>
+                      <div className="grid grid-cols-3 gap-2 mb-2">
+                        {adMedia.map((file, idx) => (
+                          <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-white/10">
+                            {file.type.startsWith('video/') ? (
+                              <video src={URL.createObjectURL(file)} className="w-full h-full object-cover" />
+                            ) : (
+                              <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" alt="" />
+                            )}
+                            <button 
+                              type="button"
+                              onClick={() => setAdMedia(adMedia.filter((_, i) => i !== idx))}
+                              className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full"
+                            >
+                              <X size={12} />
+                            </button>
+                          </div>
+                        ))}
+                        {adMedia.length < 5 && (
+                          <label className="aspect-square rounded-lg border-2 border-dashed border-white/10 flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 transition-colors">
+                            <Plus size={20} className="text-slate-500" />
+                            <input 
+                              type="file"
+                              multiple
+                              accept="image/*,video/*"
+                              onChange={(e) => {
+                                const files = Array.from(e.target.files || []);
+                                setAdMedia([...adMedia, ...files].slice(0, 5));
+                              }}
+                              className="hidden"
+                            />
+                          </label>
                         )}
-                        <input 
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => setAdImage(e.target.files?.[0] || null)}
-                          className="absolute inset-0 opacity-0 cursor-pointer"
-                        />
                       </div>
+                      <p className="text-[10px] text-slate-500 italic">Máximo 5 arquivos. Suporta imagens e vídeos.</p>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
@@ -830,19 +898,24 @@ export default function AdminPage() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-1">ID da Loja (Alvo)</label>
-                        <input 
-                          type="text"
-                          value={newAd.target_store_id || ''}
-                          onChange={(e) => setNewAd({...newAd, target_store_id: e.target.value})}
+                        <label className="block text-sm font-medium text-slate-400 mb-1">Município (Alvo)</label>
+                        <select 
+                          value={newAd.target_municipality_id || ''}
+                          onChange={(e) => setNewAd({...newAd, target_municipality_id: e.target.value})}
                           className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-orange-500"
-                          placeholder="ID Público"
-                        />
+                        >
+                          <option value="">Todos</option>
+                          {municipalities
+                            .filter(m => !newAd.target_province_id || m.province_id === newAd.target_province_id)
+                            .map((m: any) => <option key={m.id} value={m.id}>{m.name}</option>)
+                          }
+                        </select>
                       </div>
                     </div>
                     <button 
                       type="submit"
-                      className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+                      disabled={!newAd.title || adMedia.length === 0}
+                      className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
                     >
                       <Plus size={20} /> Criar Publicidade
                     </button>
@@ -856,7 +929,11 @@ export default function AdminPage() {
                   {ads.map((ad: any) => (
                     <div key={ad.id} className="bg-slate-900 rounded-2xl overflow-hidden border border-white/10 group">
                       <div className="aspect-video relative">
-                        <img src={ad.image_url} className="w-full h-full object-cover" alt="" />
+                        {ad.media_urls?.[0]?.toLowerCase().endsWith('.mp4') ? (
+                          <video src={ad.media_urls[0]} className="w-full h-full object-cover" />
+                        ) : (
+                          <img src={ad.media_urls?.[0]} className="w-full h-full object-cover" alt="" />
+                        )}
                         <div className="absolute top-2 right-2 flex gap-2">
                           <button 
                             onClick={() => handleDeleteAd(ad.id)}
@@ -865,12 +942,15 @@ export default function AdminPage() {
                             <Trash2 size={16} />
                           </button>
                         </div>
-                        <div className="absolute bottom-2 left-2">
+                        <div className="absolute bottom-2 left-2 flex gap-1">
                           <span className={cn(
                             "text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider",
                             ad.active ? "bg-green-500 text-white" : "bg-slate-500 text-white"
                           )}>
                             {ad.active ? 'Ativa' : 'Pausada'}
+                          </span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider bg-black/50 text-white">
+                            {ad.placement}
                           </span>
                         </div>
                       </div>
@@ -878,7 +958,7 @@ export default function AdminPage() {
                         <h4 className="font-bold mb-1 truncate">{ad.title}</h4>
                         <p className="text-xs text-slate-400 line-clamp-2 mb-3">{ad.content}</p>
                         <div className="flex items-center justify-between text-[10px] text-slate-500 uppercase tracking-widest">
-                          <span>{ad.placement === 'store_cover' ? 'Capa' : 'Feed'}</span>
+                          <span>Expira: {new Date(ad.expires_at).toLocaleDateString()}</span>
                           <span>{new Date(ad.created_at).toLocaleDateString()}</span>
                         </div>
                       </div>

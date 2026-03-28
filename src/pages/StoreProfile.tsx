@@ -156,13 +156,14 @@ export const StoreProfilePage = () => {
 
   const fetchAds = async () => {
     try {
-      // Fetch ads for this store or global ads
+      // Fetch news ads for this store or global cover ads
       const { data, error } = await supabase
-        .from('advertisements')
+        .from('news')
         .select('*')
-        .eq('is_active', true)
-        .eq('placement', 'store_cover')
+        .eq('active', true)
+        .eq('placement', 'cover')
         .or(`target_store_id.is.null,target_store_id.eq.${storeId}`)
+        .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -261,8 +262,25 @@ export const StoreProfilePage = () => {
                 exit={{ opacity: 0, x: -50 }}
                 className="w-full h-full"
               >
-                {ads[currentAdIndex].image_url ? (
-                  <img src={ads[currentAdIndex].image_url} alt="Ad" className="w-full h-full object-cover" />
+                {ads[currentAdIndex].media_urls?.[0] || ads[currentAdIndex].image_url ? (
+                  <div className="w-full h-full">
+                    { (ads[currentAdIndex].media_urls?.[0]?.toLowerCase().match(/\.(mp4|webm|ogg|mov)$/) || ads[currentAdIndex].media_urls?.[0]?.includes('video')) ? (
+                      <video 
+                        src={ads[currentAdIndex].media_urls[0]} 
+                        autoPlay 
+                        muted 
+                        loop 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <img 
+                        src={ads[currentAdIndex].media_urls?.[0] || ads[currentAdIndex].image_url} 
+                        alt="Ad" 
+                        className="w-full h-full object-cover" 
+                        referrerPolicy="no-referrer"
+                      />
+                    )}
+                  </div>
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-slate-900 p-8 text-center">
                     <p className="text-xl font-bold text-white">{ads[currentAdIndex].content}</p>
