@@ -1,36 +1,26 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.VITE_SUPABASE_URL || localStorage.getItem('supabase_url') || '';
+const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || localStorage.getItem('supabase_key') || '';
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    'Missing Supabase environment variables. Please check your .env file or Vercel environment variables.'
-  );
+  console.warn('Supabase credentials not found. Please configure them in the setup screen or environment variables.');
 }
 
-// Production-safe client initialization
+// Singleton pattern for the Supabase client
 export const supabase = createClient(
-  supabaseUrl,
-  supabaseAnonKey,
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-      storageKey: 'angobuy-auth-token',
-      flowType: 'pkce'
-    },
-    global: {
-      headers: { 'x-application-name': 'angobuy-marketplace' }
-    },
-    db: {
-      schema: 'public'
-    }
-  }
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder'
 );
 
-// Helper to check if Supabase is properly configured (useful for conditional rendering/logic)
-export const isSupabaseConfigured = () => {
-  return !!supabaseUrl && !!supabaseAnonKey;
+// Helper to check connection
+export const checkSupabaseConnection = async () => {
+  try {
+    const { data, error } = await supabase.from('provinces').select('count', { count: 'exact', head: true });
+    if (error) throw error;
+    return true;
+  } catch (err) {
+    console.error('Supabase connection error:', err);
+    return false;
+  }
 };

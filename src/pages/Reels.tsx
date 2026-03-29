@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Heart, MessageCircle, Share2, MoreHorizontal, Music, User } from 'lucide-react';
-import { supabase } from '@/lib/supabaseClient';
-import { Post } from '@/types/index';
+import { supabase } from '@/src/lib/supabase';
+import { Post } from '@/src/types';
 import { motion, AnimatePresence } from 'motion/react';
-import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useAuth } from '@/src/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { useFollow } from '@/features/stores/hooks/useFollow';
-import { cn } from '@/utils/helpers/utils';
+import { useFollow } from '@/src/hooks/useFollow';
+import { cn } from '@/src/lib/utils';
 
 export const ReelsPage = () => {
   const [reels, setReels] = useState<Post[]>([]);
@@ -113,14 +113,14 @@ const ReelItem: React.FC<ReelItemProps> = ({ reel, isActive }) => {
           >
             <Heart size={32} fill={isLiked ? '#ef4444' : 'none'} className={isLiked ? 'text-red-500' : 'text-white'} />
           </button>
-          <span className="text-xs font-bold text-white shadow-sm">{(reel.likes_count || 0) + (isLiked ? 1 : 0)}</span>
+          <span className="text-xs font-bold text-white shadow-sm">{reel.likes_count + (isLiked ? 1 : 0)}</span>
         </div>
 
         <div className="flex flex-col items-center gap-1">
           <button onClick={handleAction} className="p-2 text-white transition-all active:scale-125">
             <MessageCircle size={32} />
           </button>
-          <span className="text-xs font-bold text-white shadow-sm">{reel.comments_count || 0}</span>
+          <span className="text-xs font-bold text-white shadow-sm">{reel.comments_count}</span>
         </div>
 
         <div className="flex flex-col items-center gap-1">

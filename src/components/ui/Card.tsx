@@ -1,5 +1,5 @@
 import React from 'react';
-import { cn } from '@/utils/helpers/utils';
+import { cn } from '@/src/lib/utils';
 
 interface CardProps {
   className?: string;

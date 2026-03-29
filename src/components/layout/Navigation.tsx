@@ -1,8 +1,8 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Search, PlusSquare, MessageCircle, User, LayoutDashboard, Bell, ShoppingBag, PlaySquare, LogOut, Menu, X, Compass, ShoppingCart } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { cn } from '@/utils/helpers/utils';
-import { useAuth } from '@/features/auth/hooks/useAuth';
+import { cn } from '@/src/lib/utils';
+import { useAuth } from '@/src/hooks/useAuth';
 import { useState, useEffect } from 'react';
 
 export const Sidebar = () => {

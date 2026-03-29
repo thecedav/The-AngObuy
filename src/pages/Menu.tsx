@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { Card } from '@/components/ui/Card';
+import { useAuth } from '@/src/hooks/useAuth';
+import { Card } from '@/src/components/ui/Card';
 import { User, LogOut, ChevronRight, Settings, HelpCircle, Shield, Info } from 'lucide-react';
 import { motion } from 'motion/react';
-import { cn } from '@/utils/helpers/utils';
+import { cn } from '@/src/lib/utils';
 
 export const MenuPage = () => {
   const { profile, signOut } = useAuth();
@@ -36,10 +36,10 @@ export const MenuPage = () => {
           onClick={() => navigate('/profile')}
         >
           <div className="w-12 h-12 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold text-xl">
-            {profile?.full_name?.[0] || profile?.name?.[0] || 'U'}
+            {profile?.full_name?.[0] || profile?.username?.[0] || 'U'}
           </div>
           <div className="flex-1">
-            <h2 className="font-bold text-white">{profile?.full_name || profile?.name}</h2>
+            <h2 className="font-bold text-white">{profile?.full_name || profile?.username}</h2>
             <p className="text-xs text-slate-500">Ver seu perfil</p>
           </div>
           <ChevronRight className="text-slate-600" />

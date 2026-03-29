@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabaseClient';
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
+import { supabase } from '@/src/lib/supabase';
+import { useAuth } from '@/src/hooks/useAuth';
+import { Card } from '@/src/components/ui/Card';
+import { Button } from '@/src/components/ui/Button';
 import { Store, ShoppingBag, Wrench, Upload, ChevronRight, CheckCircle2, PlusSquare, X, Globe, Package, Camera, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { generateProductDescription } from '@/services/ai/gemini';
-import { useLocations } from '@/features/marketplace/hooks/useLocations';
-import { cn } from '@/utils/helpers/utils';
+import { generateProductDescription } from '@/src/lib/gemini';
+import { useLocations } from '@/src/hooks/useLocations';
+import { cn } from '@/src/lib/utils';
 
 export const CreatePage = () => {
   const [step, setStep] = useState<'type' | 'form' | 'store'>('type');
@@ -324,7 +324,7 @@ const StoreForm = ({ onSuccess }: { onSuccess: () => void }) => {
                 className="w-full bg-slate-800 border border-white/5 rounded-xl p-4 focus:ring-2 focus:ring-orange-500/50 outline-none transition-all"
               >
                 <option value="">Selecionar</option>
-                {provinces.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                {provinces.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
             </div>
             <div className="space-y-2">
@@ -337,7 +337,7 @@ const StoreForm = ({ onSuccess }: { onSuccess: () => void }) => {
                 className="w-full bg-slate-800 border border-white/5 rounded-xl p-4 focus:ring-2 focus:ring-orange-500/50 outline-none transition-all disabled:opacity-50"
               >
                 <option value="">Selecionar</option>
-                {municipalities.map((m: any) => <option key={m.id} value={m.id}>{m.name}</option>)}
+                {municipalities.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
               </select>
             </div>
           </div>
@@ -667,7 +667,7 @@ const ProductForm = () => {
               required
             >
               <option value="">Selecionar Categoria</option>
-              {categories.map((c: any) => (
+              {categories.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
@@ -682,7 +682,7 @@ const ProductForm = () => {
               disabled={!formData.category_id}
             >
               <option value="">Selecionar Subcategoria</option>
-              {subcategories.map((s: any) => (
+              {subcategories.map(s => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
             </select>
@@ -897,7 +897,7 @@ const ProductForm = () => {
               onChange={handleProvinceChange}
             >
               <option value="">Selecionar Província</option>
-              {provinces.map((p: any) => (
+              {provinces.map(p => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
@@ -912,7 +912,7 @@ const ProductForm = () => {
               onChange={e => setFormData(prev => ({ ...prev, municipality_id: e.target.value }))}
             >
               <option value="">Selecionar Município</option>
-              {municipalities.map((m: any) => (
+              {municipalities.map(m => (
                 <option key={m.id} value={m.id}>{m.name}</option>
               ))}
             </select>
@@ -1185,7 +1185,7 @@ const ServiceForm = () => {
               required
             >
               <option value="">Selecionar Categoria</option>
-              {categories.map((c: any) => (
+              {categories.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
@@ -1200,7 +1200,7 @@ const ServiceForm = () => {
               disabled={!formData.category_id}
             >
               <option value="">Selecionar Subcategoria</option>
-              {subcategories.map((s: any) => (
+              {subcategories.map(s => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
             </select>
@@ -1277,7 +1277,7 @@ const ServiceForm = () => {
               onChange={handleProvinceChange}
             >
               <option value="">Selecionar Província</option>
-              {provinces.map((p: any) => (
+              {provinces.map(p => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
@@ -1292,7 +1292,7 @@ const ServiceForm = () => {
               onChange={e => setFormData(prev => ({ ...prev, municipality_id: e.target.value }))}
             >
               <option value="">Selecionar Município</option>
-              {municipalities.map((m: any) => (
+              {municipalities.map(m => (
                 <option key={m.id} value={m.id}>{m.name}</option>
               ))}
             </select>

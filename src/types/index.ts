@@ -1,18 +1,14 @@
 export interface Advertisement {
   id: string;
   public_id: string;
-  title: string;
+  title?: string;
   content?: string;
   image_url?: string;
-  media_urls: string[];
+  link_url?: string;
   target_store_id?: string;
-  target_product_id?: string;
   target_province_id?: string;
   target_municipality_id?: string;
-  link_url?: string;
-  placement: 'cover' | 'feed';
-  duration: '24h' | '1dia' | '1mes';
-  expires_at?: string;
+  placement: 'store_cover' | 'news_feed';
   active: boolean;
   created_at: string;
 }
@@ -185,7 +181,6 @@ export interface Product {
   id: string;
   public_id: string;
   store_id: string;
-  type?: 'product' | 'service';
   title: string;
   category_id: string;
   subcategory_id: string;
@@ -217,7 +212,6 @@ export interface Service {
   id: string;
   public_id: string;
   store_id: string;
-  type?: 'product' | 'service';
   title: string;
   category_id: string;
   subcategory_id: string;

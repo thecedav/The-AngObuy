@@ -1,9 +1,9 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { Sidebar, BottomNav, MobileHeader, TopHeader } from './Navigation';
-import { cn } from '@/utils/helpers/utils';
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { AuthLoadingOverlay } from '@/features/auth/components/AuthLoadingOverlay';
+import { cn } from '../../lib/utils';
+import { useAuth } from '../../hooks/useAuth';
+import { AuthLoadingOverlay } from '../AuthLoadingOverlay';
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();

@@ -28,14 +28,14 @@ import {
   Building2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { supabase } from '@/lib/supabaseClient';
-import { useAuth } from '@/features/auth/hooks/useAuth';
+import { supabase } from '@/src/lib/supabase';
+import { useAuth } from '@/src/hooks/useAuth';
 import { 
   fetchStoreStock, 
   fetchStoreViewsCount, 
   fetchPopularProducts 
-} from '@/services/supabase/supabaseService';
-import { cn } from '@/utils/helpers/utils';
+} from '@/src/services/supabaseService';
+import { cn } from '@/src/lib/utils';
 import { 
   BarChart, 
   Bar, 
@@ -52,7 +52,7 @@ import {
 } from 'recharts';
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || '' });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const FIXED_CARDS = [
   { name: "Dinheiro em Mão", color: "from-emerald-500 to-emerald-800", icon: "piggy", type: 'cash' },
@@ -549,7 +549,7 @@ export const BusinessManagementPage = () => {
                           paddingAngle={5}
                           dataKey="value"
                         >
-                          {expensesByCategory.map((entry: any, index: number) => (
+                          {expensesByCategory.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ec4899', '#facc15', '#22d3ee', '#f43f5e', '#06b6d4', '#84cc16'][index % 10]} />
                           ))}
                           {expensesByCategory.length === 0 && <Cell fill="#ffffff10" />}
@@ -568,7 +568,7 @@ export const BusinessManagementPage = () => {
                 <div className="bg-slate-900/50 border border-white/5 p-6 rounded-3xl">
                   <h3 className="text-sm font-black uppercase tracking-widest mb-6">Cartões com Maior Uso</h3>
                   <div className="space-y-4">
-                    {cards.slice(0, 3).map((card: any, i: number) => (
+                    {cards.slice(0, 3).map((card, i) => (
                       <div key={card.id} className="flex items-center justify-between p-4 bg-black/30 rounded-2xl border border-white/5">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500">
@@ -592,7 +592,7 @@ export const BusinessManagementPage = () => {
                 <div className="bg-slate-900/50 border border-white/5 p-6 rounded-3xl">
                   <h3 className="text-sm font-black uppercase tracking-widest mb-6">Últimas Despesas</h3>
                   <div className="space-y-4">
-                    {expenses.slice(0, 3).map((exp: any) => (
+                    {expenses.slice(0, 3).map((exp) => (
                       <div key={exp.id} className="flex items-center justify-between p-4 bg-black/30 rounded-2xl border border-white/5">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500">
@@ -651,7 +651,7 @@ export const BusinessManagementPage = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {cards.map((card: any) => (
+                {cards.map((card) => (
                   <motion.div
                     key={card.id}
                     whileHover={{ scale: 1.02 }}
@@ -756,7 +756,7 @@ export const BusinessManagementPage = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {expenses.map((exp: any) => (
+                    {expenses.map((exp) => (
                       <tr key={exp.id} className="hover:bg-white/5 transition-colors">
                         <td className="px-6 py-4 text-xs font-bold text-slate-400">
                           {new Date(exp.created_at).toLocaleDateString()}

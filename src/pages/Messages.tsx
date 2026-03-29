@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, MessageCircle, User, MoreHorizontal, Send, Camera, Phone, Video, ArrowLeft, ShoppingBag, ShieldCheck, X, StickyNote, Calendar, Trash2, CheckCircle, ChevronRight } from 'lucide-react';
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { useChat, useChatMessages } from '@/features/messaging/hooks/useChat';
+import { useAuth } from '@/src/hooks/useAuth';
+import { useChat, useChatMessages } from '@/src/hooks/useChat';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { cn } from '@/utils/helpers/utils';
+import { cn } from '@/src/lib/utils';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { supabase } from '@/lib/supabaseClient';
-import { Button } from '@/components/ui/Button';
+import { supabase } from '@/src/lib/supabase';
+import { Button } from '@/src/components/ui/Button';
 
 export const MessagesPage = () => {
   const { user, profile } = useAuth();
@@ -60,16 +60,14 @@ export const MessagesPage = () => {
         .update({ marcado_como_feito: true })
         .eq('id', selectedChatId);
       
-      if (user) {
-        await send(user.id, 'Negociação concluída ✅', 'sistema');
-      }
+      await send(user.id, 'Negociação concluída ✅', 'sistema');
     } catch (error) {
       console.error('Error marking as done:', error);
     }
   };
 
   const handleAdminAction = async (action: 'delete' | 'note' | 'date') => {
-    if (!selectedChatId || !profile?.is_admin) return;
+    if (!selectedChatId || !user?.is_admin) return;
     
     try {
       if (action === 'delete') {
@@ -79,15 +77,11 @@ export const MessagesPage = () => {
         }
       } else if (action === 'note') {
         await supabase.from('business_chats').update({ nota_admin: adminNote }).eq('id', selectedChatId);
-        if (user) {
-          await send(user.id, `Nota do Admin: ${adminNote}`, 'sistema');
-        }
+        await send(user.id, `Nota do Admin: ${adminNote}`, 'sistema');
         setAdminNote('');
       } else if (action === 'date') {
         await supabase.from('business_chats').update({ data_marcada: markedDate }).eq('id', selectedChatId);
-        if (user) {
-          await send(user.id, `Data marcada pelo Admin: ${format(new Date(markedDate), 'dd/MM/yyyy HH:mm')}`, 'sistema');
-        }
+        await send(user.id, `Data marcada pelo Admin: ${format(new Date(markedDate), 'dd/MM/yyyy HH:mm')}`, 'sistema');
         setMarkedDate('');
       }
     } catch (error) {
@@ -95,8 +89,8 @@ export const MessagesPage = () => {
     }
   };
 
-  const selectedChat = chats.find((c: any) => c.id === selectedChatId);
-  const filteredChats = chats.filter((c: any) => {
+  const selectedChat = chats.find(c => c.id === selectedChatId);
+  const filteredChats = chats.filter(c => {
     if (activeTab === 'business') return c.is_business;
     return !c.is_business;
   });
@@ -172,7 +166,7 @@ export const MessagesPage = () => {
           ) : filteredChats.length === 0 ? (
             <div className="p-8 text-center text-slate-500">Nenhuma conversa encontrada.</div>
           ) : (
-            filteredChats.map((chat: any) => (
+            filteredChats.map((chat) => (
               <div 
                 key={chat.id}
                 onClick={() => setSelectedChatId(chat.id)}
@@ -266,7 +260,7 @@ export const MessagesPage = () => {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
                 </div>
               ) : (
-                messages.map((msg: any, index: number) => (
+                messages.map((msg, index) => (
                   <div 
                     key={msg.id || index}
                     className={cn(
@@ -305,7 +299,7 @@ export const MessagesPage = () => {
 
             {/* Admin Panel Overlay */}
             <AnimatePresence>
-              {showAdminPanel && profile?.is_admin && (
+              {showAdminPanel && user?.is_admin && (
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}

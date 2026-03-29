@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { supabase } from '@/lib/supabaseClient';
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
+import { supabase } from '@/src/lib/supabase';
+import { useAuth } from '@/src/hooks/useAuth';
+import { Card } from '@/src/components/ui/Card';
+import { Button } from '@/src/components/ui/Button';
 import { Upload, ChevronRight, CheckCircle2, ArrowLeft, Store as StoreIcon } from 'lucide-react';
 import { motion } from 'motion/react';
-import { useLocations } from '@/features/marketplace/hooks/useLocations';
-import { cn } from '@/utils/helpers/utils';
-import { Store } from '@/types/index';
+import { useLocations } from '@/src/hooks/useLocations';
+import { cn } from '@/src/lib/utils';
+import { Store } from '@/src/types';
 
 export const EditStorePage = () => {
   const { storeId } = useParams<{ storeId: string }>();
@@ -328,7 +328,7 @@ export const EditStorePage = () => {
                   onChange={handleProvinceChange}
                 >
                   <option value="">Selecionar Província</option>
-                  {provinces.map((p: any) => (
+                  {provinces.map(p => (
                     <option key={p.id} value={p.id}>{p.name}</option>
                   ))}
                 </select>
@@ -343,7 +343,7 @@ export const EditStorePage = () => {
                   onChange={e => setFormData(prev => ({ ...prev, municipality_id: e.target.value }))}
                 >
                   <option value="">Selecionar Município</option>
-                  {municipalities.map((m: any) => (
+                  {municipalities.map(m => (
                     <option key={m.id} value={m.id}>{m.name}</option>
                   ))}
                 </select>

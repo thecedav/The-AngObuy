@@ -1,25 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabaseClient';
-import { Post, Advertisement, Comment } from '@/types/index';
-import { cn } from '@/utils/helpers/utils';
-import { Card } from '@/components/ui/Card';
+import { supabase } from '@/src/lib/supabase';
+import { Post, Advertisement } from '@/src/types';
+import { cn } from '@/src/lib/utils';
+import { Card } from '@/src/components/ui/Card';
 import { Heart, MessageCircle, Share2, MoreHorizontal, ShoppingBag, Wrench, Bookmark, ExternalLink, Facebook, Instagram, Link, Send, Reply, Trash2, Plus, ShoppingCart, Minus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { useCart } from '@/features/cart/hooks/useCart';
-import { useFollow } from '@/features/stores/hooks/useFollow';
-
-import { AdModal } from '@/features/marketplace/components/AdModal';
+import { useAuth } from '@/src/hooks/useAuth';
+import { useCart } from '@/src/hooks/useCart';
+import { useFollow } from '@/src/hooks/useFollow';
+import { Comment } from '@/src/types';
 
 export const FeedPage = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [ads, setAds] = useState<Advertisement[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedAd, setSelectedAd] = useState<Advertisement | null>(null);
-  const [selectedAdIndex, setSelectedAdIndex] = useState(0);
 
   useEffect(() => {
     fetchData();
@@ -62,19 +59,18 @@ export const FeedPage = () => {
 
       // Combine and sort
       const combined = [
-        ...(productsData || []).map((p: any) => ({ ...p, type: 'product' as const, content: p.description })),
-        ...(servicesData || []).map((s: any) => ({ ...s, type: 'service' as const, content: s.description }))
+        ...(productsData || []).map(p => ({ ...p, type: 'product' as const, content: p.description })),
+        ...(servicesData || []).map(s => ({ ...s, type: 'service' as const, content: s.description }))
       ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
       setPosts(combined as any);
 
-      // Fetch news feed ads from 'news' table
+      // Fetch news feed ads
       const { data: adsData, error: adsError } = await supabase
-        .from('news')
+        .from('advertisements')
         .select('*')
         .eq('active', true)
-        .eq('placement', 'feed')
-        .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`);
+        .eq('placement', 'news_feed');
 
       if (adsError) throw adsError;
       setAds(adsData || []);
@@ -138,13 +134,7 @@ export const FeedPage = () => {
                 transition={{ delay: (index % 5) * 0.1 }}
               >
                 {isAd ? (
-                  <AdCard 
-                    ad={item as Advertisement} 
-                    onClick={() => {
-                      setSelectedAd(item as Advertisement);
-                      setSelectedAdIndex(ads.findIndex(a => a.id === item.id));
-                    }} 
-                  />
+                  <AdCard ad={item as Advertisement} />
                 ) : (
                   <PostCard post={item as Post} />
                 )}
@@ -153,67 +143,27 @@ export const FeedPage = () => {
           })}
         </div>
       )}
-
-      <AnimatePresence>
-        {selectedAd && (
-          <AdModal 
-            ad={selectedAd} 
-            onClose={() => setSelectedAd(null)}
-            onNext={() => {
-              const nextIndex = (selectedAdIndex + 1) % ads.length;
-              setSelectedAdIndex(nextIndex);
-              setSelectedAd(ads[nextIndex]);
-            }}
-            onPrev={() => {
-              const prevIndex = (selectedAdIndex - 1 + ads.length) % ads.length;
-              setSelectedAdIndex(prevIndex);
-              setSelectedAd(ads[prevIndex]);
-            }}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 };
 
-const AdCard = ({ ad, onClick }: { ad: Advertisement, onClick: () => void }) => {
-  const mediaUrl = ad.media_urls?.[0] || ad.image_url;
-  const isVideo = mediaUrl?.toLowerCase().match(/\.(mp4|webm|ogg|mov)$/) || mediaUrl?.includes('video');
-
+const AdCard = ({ ad }: { ad: Advertisement }) => {
   return (
-    <div 
-      onClick={onClick}
-      className="bg-slate-900/40 border md:rounded-lg border-orange-500/30 mb-4 md:mb-6 overflow-hidden relative cursor-pointer hover:border-orange-500 transition-all group"
-    >
+    <div className="bg-slate-900/40 border md:rounded-lg border-orange-500/30 mb-4 md:mb-6 overflow-hidden relative">
       <div className="absolute top-2 right-2 z-10">
         <span className="bg-orange-500 text-black text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
           Patrocinado
         </span>
       </div>
 
-      {mediaUrl ? (
-        <div className="aspect-video w-full overflow-hidden relative">
-          {isVideo ? (
-            <video 
-              src={mediaUrl} 
-              className="w-full h-full object-cover"
-              muted
-              loop
-              autoPlay
-            />
-          ) : (
-            <img 
-              src={mediaUrl} 
-              alt={ad.title} 
-              className="w-full h-full object-cover transition-transform group-hover:scale-105"
-              referrerPolicy="no-referrer"
-            />
-          )}
-          {ad.media_urls && ad.media_urls.length > 1 && (
-            <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-md text-white text-[8px] px-1.5 py-0.5 rounded font-bold">
-              +{ad.media_urls.length - 1}
-            </div>
-          )}
+      {ad.image_url ? (
+        <div className="aspect-video w-full overflow-hidden">
+          <img 
+            src={ad.image_url} 
+            alt={ad.title} 
+            className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+          />
         </div>
       ) : (
         <div className="p-8 flex flex-col items-center justify-center text-center bg-gradient-to-br from-slate-900 to-orange-900/20 min-h-[200px]">
@@ -224,13 +174,20 @@ const AdCard = ({ ad, onClick }: { ad: Advertisement, onClick: () => void }) => 
 
       <div className="p-4 flex items-center justify-between bg-black/40 backdrop-blur-sm border-t border-white/5">
         <div className="flex-1">
-          {mediaUrl && <h3 className="font-bold text-white text-sm mb-1">{ad.title}</h3>}
+          {ad.image_url && <h3 className="font-bold text-white text-sm mb-1">{ad.title}</h3>}
           <p className="text-slate-400 text-xs line-clamp-1">{ad.content}</p>
         </div>
-        <div className="ml-4 flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-black px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-95 whitespace-nowrap">
-          Ver Mais
-          <ExternalLink size={14} />
-        </div>
+        {ad.link_url && (
+          <a 
+            href={ad.link_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-4 flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-black px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-95 whitespace-nowrap"
+          >
+            Saiba Mais
+            <ExternalLink size={14} />
+          </a>
+        )}
       </div>
     </div>
   );
@@ -273,12 +230,12 @@ const PostCard = ({ post }: { post: Post }) => {
       const commentMap = new Map<string, Comment>();
       const rootComments: Comment[] = [];
 
-      data?.forEach((c: any) => {
+      data?.forEach(c => {
         const comment = { ...c, replies: [] };
         commentMap.set(c.id, comment);
       });
 
-      data?.forEach((c: any) => {
+      data?.forEach(c => {
         const comment = commentMap.get(c.id)!;
         if (c.parent_id && commentMap.has(c.parent_id)) {
           commentMap.get(c.parent_id)!.replies!.push(comment);
@@ -527,7 +484,7 @@ const PostCard = ({ post }: { post: Post }) => {
               className={cn('flex items-center gap-1.5 transition-all active:scale-125 group', isLiked ? 'text-red-500' : 'text-white hover:text-slate-400')}
             >
               <Heart size={24} fill={isLiked ? 'currentColor' : 'none'} className={cn(isLiked && "fill-red-500")} />
-              <span className="text-xs font-bold">{(post.likes_count || 0) + (isLiked ? 1 : 0)}</span>
+              <span className="text-xs font-bold">{post.likes_count + (isLiked ? 1 : 0)}</span>
             </button>
             <button 
               onClick={(e) => { e.stopPropagation(); setShowComments(!showComments); }}

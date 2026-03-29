@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Settings, Grid, Bookmark, User, MoreHorizontal, ShoppingBag, Wrench, Database, CheckCircle, MessageCircle, ArrowLeft, Camera, MapPin, Store, Shield, LogOut, Save, Plus, Trash2, AlertTriangle } from 'lucide-react';
-import { supabase } from '@/lib/supabaseClient';
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { UserProfile, Post, Store as StoreType } from '@/types/index';
+import { supabase } from '@/src/lib/supabaseClient';
+import { useAuth } from '@/src/hooks/useAuth';
+import { UserProfile, Post, Store as StoreType } from '@/src/types';
 import { motion, AnimatePresence } from 'motion/react';
-import { cn } from '@/utils/helpers/utils';
-import { useFollow } from '@/features/stores/hooks/useFollow';
-import { useLocations } from '@/features/marketplace/hooks/useLocations';
-import { deleteStore } from '@/services/supabase/supabaseService';
+import { cn } from '@/src/lib/utils';
+import { useFollow } from '@/src/hooks/useFollow';
+import { useLocations } from '@/src/hooks/useLocations';
+import { deleteStore } from '@/src/services/supabaseService';
 
 export const ProfilePage = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -463,7 +463,7 @@ export const ProfilePage = () => {
                       className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500/50 outline-none transition-all appearance-none shadow-inner"
                     >
                       <option value="">Selecionar Província</option>
-                      {provinces.map((p: any) => (
+                      {provinces.map(p => (
                         <option key={p.id} value={p.id}>{p.name}</option>
                       ))}
                     </select>
@@ -477,7 +477,7 @@ export const ProfilePage = () => {
                       disabled={!editForm.province_id}
                     >
                       <option value="">Selecionar Município</option>
-                      {municipalities.map((m: any) => (
+                      {municipalities.map(m => (
                         <option key={m.id} value={m.id}>{m.name}</option>
                       ))}
                     </select>

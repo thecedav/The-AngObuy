@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabaseClient';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { useAuth } from '@/features/auth/hooks/useAuth';
+import { supabase } from '@/src/lib/supabase';
+import { Button } from '@/src/components/ui/Button';
+import { Card } from '@/src/components/ui/Card';
+import { useAuth } from '@/src/hooks/useAuth';
 import { LogIn, Mail, Lock, User, Phone, CreditCard, Camera, Check, MapPin } from 'lucide-react';
-import { CameraCapture } from '@/components/shared/CameraCapture';
-import { fetchProvinces, fetchMunicipalities } from '@/services/supabase/supabaseService';
-import { Province, Municipality } from '@/types/index';
+import { CameraCapture } from '@/src/components/CameraCapture';
+import { fetchProvinces, fetchMunicipalities } from '@/src/services/supabaseService';
+import { Province, Municipality } from '@/src/types';
 
 export const LoginPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -200,7 +200,7 @@ export const LoginPage = () => {
                       required
                     >
                       <option value="">Província</option>
-                      {provinces.map((p: any) => (
+                      {provinces.map(p => (
                         <option key={p.id} value={p.id}>{p.name}</option>
                       ))}
                     </select>
@@ -219,7 +219,7 @@ export const LoginPage = () => {
                       required
                     >
                       <option value="">Município</option>
-                      {municipalities.map((m: any) => (
+                      {municipalities.map(m => (
                         <option key={m.id} value={m.id}>{m.name}</option>
                       ))}
                     </select>

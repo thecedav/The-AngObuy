@@ -1,15 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabaseClient';
-import { Store, Post, Advertisement } from '@/types/index';
+import { supabase } from '@/src/lib/supabaseClient';
+import { Store, Post, Advertisement } from '@/src/types';
 import { Grid, ShoppingBag, Wrench, User, ArrowLeft, MessageCircle, CheckCircle, Star, MapPin, MoreHorizontal, Camera, ShieldCheck, ShieldAlert, ChevronLeft, ChevronRight, Plus, Heart, Share2, LayoutDashboard } from 'lucide-react';
-import { recordStoreView } from '@/services/supabase/supabaseService';
+import { recordStoreView } from '@/src/services/supabaseService';
 import { motion, AnimatePresence } from 'motion/react';
-import { cn } from '@/utils/helpers/utils';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { useFollow } from '@/features/stores/hooks/useFollow';
+import { cn } from '@/src/lib/utils';
+import { Button } from '@/src/components/ui/Button';
+import { Card } from '@/src/components/ui/Card';
+import { useAuth } from '@/src/hooks/useAuth';
+import { useFollow } from '@/src/hooks/useFollow';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -142,8 +142,8 @@ export const StoreProfilePage = () => {
 
       // Combine and sort
       const combined = [
-        ...(productsData || []).map((p: any) => ({ ...p, type: 'product' as const, content: p.description })),
-        ...(servicesData || []).map((s: any) => ({ ...s, type: 'service' as const, content: s.description }))
+        ...(productsData || []).map(p => ({ ...p, type: 'product' as const, content: p.description })),
+        ...(servicesData || []).map(s => ({ ...s, type: 'service' as const, content: s.description }))
       ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
       setPosts(combined as any);
@@ -156,14 +156,13 @@ export const StoreProfilePage = () => {
 
   const fetchAds = async () => {
     try {
-      // Fetch news ads for this store or global cover ads
+      // Fetch ads for this store or global ads
       const { data, error } = await supabase
-        .from('news')
+        .from('advertisements')
         .select('*')
-        .eq('active', true)
-        .eq('placement', 'cover')
+        .eq('is_active', true)
+        .eq('placement', 'store_cover')
         .or(`target_store_id.is.null,target_store_id.eq.${storeId}`)
-        .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -262,28 +261,11 @@ export const StoreProfilePage = () => {
                 exit={{ opacity: 0, x: -50 }}
                 className="w-full h-full"
               >
-                {ads[currentAdIndex].media_urls?.[0] || ads[currentAdIndex].image_url ? (
-                  <div className="w-full h-full">
-                    { (ads[currentAdIndex].media_urls?.[0]?.toLowerCase().match(/\.(mp4|webm|ogg|mov)$/) || ads[currentAdIndex].media_urls?.[0]?.includes('video')) ? (
-                      <video 
-                        src={ads[currentAdIndex].media_urls[0]} 
-                        autoPlay 
-                        muted 
-                        loop 
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <img 
-                        src={ads[currentAdIndex].media_urls?.[0] || ads[currentAdIndex].image_url} 
-                        alt="Ad" 
-                        className="w-full h-full object-cover" 
-                        referrerPolicy="no-referrer"
-                      />
-                    )}
-                  </div>
+                {ads[currentAdIndex].image_url ? (
+                  <img src={ads[currentAdIndex].image_url} alt="Ad" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-slate-900 p-8 text-center">
-                    <p className="text-xl font-bold text-white">{ads[currentAdIndex].content}</p>
+                    <p className="text-xl font-bold text-white">{ads[currentAdIndex].content_text}</p>
                   </div>
                 )}
                 
@@ -576,7 +558,7 @@ export const StoreProfilePage = () => {
                     <p className="text-slate-500">Ainda não há avaliações para esta loja.</p>
                   </div>
                 ) : (
-                  reviews.map((review: any) => (
+                  reviews.map((review) => (
                     <div key={review.id} className="bg-slate-900/30 border border-white/5 rounded-2xl p-6 space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -617,7 +599,7 @@ export const StoreProfilePage = () => {
             </div>
           ) : activeTab === 'products' ? (
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
-              {filteredPosts.map((post: any) => (
+              {filteredPosts.map((post) => (
                 <motion.div
                   key={post.id}
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -659,7 +641,7 @@ export const StoreProfilePage = () => {
             </div>
           ) : (
             <div className="space-y-4 max-w-4xl mx-auto">
-              {filteredPosts.map((post: any, index: number) => (
+              {filteredPosts.map((post, index) => (
                 <motion.div
                   key={post.id}
                   initial={{ opacity: 0, x: -20 }}

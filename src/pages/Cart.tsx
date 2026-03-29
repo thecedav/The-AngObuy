@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '@/features/cart/hooks/useCart';
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { supabase } from '@/lib/supabaseClient';
+import { useCart } from '@/src/hooks/useCart';
+import { useAuth } from '@/src/hooks/useAuth';
+import { supabase } from '@/src/lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingCart, Trash2, Plus, Minus, ArrowLeft, ShoppingBag, ChevronDown, ChevronUp, X, MessageCircle, CheckCircle } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { cn } from '@/utils/helpers/utils';
+import { Button } from '@/src/components/ui/Button';
+import { Card } from '@/src/components/ui/Card';
+import { cn } from '@/src/lib/utils';
 
 export const CartPage = () => {
   const navigate = useNavigate();
@@ -158,7 +158,7 @@ export const CartPage = () => {
       ) : (
         <div className="max-w-3xl mx-auto space-y-4">
           <AnimatePresence mode="popLayout">
-            {items.map((item: any) => {
+            {items.map((item) => {
               const isExpanded = expandedItemId === item.id;
               const itemTotal = (item.product?.price || 0) * item.quantity;
               
@@ -258,7 +258,7 @@ export const CartPage = () => {
                           </div>
 
                           <Button 
-                            onClick={(e: React.MouseEvent) => {
+                            onClick={(e) => {
                               e.stopPropagation();
                               setSelectedItemForBuy(item);
                               setShowBuyModal(true);
@@ -417,7 +417,7 @@ export const CartPage = () => {
                           </div>
                           
                           <Button 
-                            onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleCedavPay(selectedItemForBuy); }}
+                            onClick={(e) => { e.stopPropagation(); handleCedavPay(selectedItemForBuy); }}
                             className="w-full mt-6 h-14 bg-white text-blue-600 hover:bg-blue-50 font-black text-lg rounded-xl shadow-xl"
                           >
                             Confirmar com The Cedav-Pay

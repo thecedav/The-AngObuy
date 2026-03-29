@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabaseClient';
-import { Post, Store, Comment } from '@/types/index';
+import { supabase } from '@/src/lib/supabase';
+import { Post, Store } from '@/src/types';
 import { 
   Heart, 
   Share2, 
@@ -33,18 +33,19 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { cn } from '@/utils/helpers/utils';
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { useCart } from '@/features/cart/hooks/useCart';
-import { useFollow } from '@/features/stores/hooks/useFollow';
-import { recordStoreView } from '@/services/supabase/supabaseService';
+import { Button } from '@/src/components/ui/Button';
+import { Card } from '@/src/components/ui/Card';
+import { cn } from '@/src/lib/utils';
+import { useAuth } from '@/src/hooks/useAuth';
+import { useCart } from '@/src/hooks/useCart';
+import { useFollow } from '@/src/hooks/useFollow';
+import { Comment } from '@/src/types';
+import { recordStoreView } from '@/src/services/supabaseService';
 
 export const ProductDetailPage = () => {
   const { productId } = useParams<{ productId: string }>();
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const { addItem, items } = useCart(user?.id);
   
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -94,12 +95,12 @@ export const ProductDetailPage = () => {
       const commentMap = new Map<string, Comment>();
       const rootComments: Comment[] = [];
 
-      data?.forEach((c: any) => {
+      data?.forEach(c => {
         const comment = { ...c, replies: [] };
         commentMap.set(c.id, comment);
       });
 
-      data?.forEach((c: any) => {
+      data?.forEach(c => {
         const comment = commentMap.get(c.id)!;
         if (c.parent_id && commentMap.has(c.parent_id)) {
           commentMap.get(c.parent_id)!.replies!.push(comment);
@@ -467,7 +468,7 @@ export const ProductDetailPage = () => {
           </div>
           {product.images && product.images.length > 1 && (
             <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-              {product.images.map((img: string, i: number) => (
+              {product.images.map((img, i) => (
                 <button 
                   key={i} 
                   onClick={() => setSelectedImageIndex(i)}
@@ -568,7 +569,7 @@ export const ProductDetailPage = () => {
                 >
                   <Minus size={16} />
                 </button>
-                <span className="w-8 text-center font-bold text-lg">{Number.isNaN(quantity) ? 1 : quantity}</span>
+                <span className="w-8 text-center font-bold text-lg">{quantity}</span>
                 <button 
                   onClick={() => handleQuantityChange(1)}
                   className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition-colors"
@@ -956,11 +957,11 @@ export const ProductDetailPage = () => {
             )}
             <div className="flex gap-3">
               <div className="w-10 h-10 rounded-full bg-slate-800 flex-shrink-0 overflow-hidden">
-                {profile?.photo_url ? (
-                  <img src={profile.photo_url} alt="" className="w-full h-full object-cover" />
+                {user?.photoURL ? (
+                  <img src={user.photoURL} alt="" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-sm font-bold text-slate-500">
-                    {profile?.name?.[0] || 'U'}
+                    {user?.displayName?.[0] || 'U'}
                   </div>
                 )}
               </div>
@@ -1060,7 +1061,7 @@ export const ProductDetailPage = () => {
             </div>
 
             <div className="p-6 flex gap-2 overflow-x-auto no-scrollbar justify-center">
-              {product.images.map((img: string, i: number) => (
+              {product.images.map((img, i) => (
                 <button 
                   key={i} 
                   onClick={() => setSelectedImageIndex(i)}

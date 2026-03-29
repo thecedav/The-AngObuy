@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Store, ShoppingBag, Wrench, MessageCircle, User, ArrowLeft, Filter, ChevronRight } from 'lucide-react';
-import { supabase } from '@/lib/supabaseClient';
-import { Product, Service, Store as StoreType, Comment, UserProfile } from '@/types/index';
+import { supabase } from '@/src/lib/supabaseClient';
+import { Product, Service, Store as StoreType, Comment, UserProfile } from '@/src/types';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
-import { cn } from '@/utils/helpers/utils';
-import { useAuth } from '@/features/auth/hooks/useAuth';
+import { cn } from '@/src/lib/utils';
+import { useAuth } from '@/src/hooks/useAuth';
 
 type SearchResult = {
   type: 'product' | 'service' | 'store' | 'comment';
@@ -60,22 +60,22 @@ export const SearchPage = () => {
       ]);
 
       const allResults: SearchResult[] = [
-        ...(productsRes.data || []).map((p: any) => ({
+        ...(productsRes.data || []).map(p => ({
           type: 'product' as const,
           data: p,
           priority: followedStoreIds.includes(p.store_id) ? 2 : 1
         })),
-        ...(servicesRes.data || []).map((s: any) => ({
+        ...(servicesRes.data || []).map(s => ({
           type: 'service' as const,
           data: s,
           priority: followedStoreIds.includes(s.store_id) ? 2 : 1
         })),
-        ...(storesRes.data || []).map((st: any) => ({
+        ...(storesRes.data || []).map(st => ({
           type: 'store' as const,
           data: st,
           priority: followedStoreIds.includes(st.id) ? 3 : 1
         })),
-        ...(commentsRes.data || []).map((c: any) => ({
+        ...(commentsRes.data || []).map(c => ({
           type: 'comment' as const,
           data: c,
           priority: 0
@@ -164,7 +164,7 @@ export const SearchPage = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredResults.map((result: any, index: number) => (
+            {filteredResults.map((result, index) => (
               <motion.div
                 key={`${result.type}-${result.data.id}`}
                 initial={{ opacity: 0, y: 10 }}
